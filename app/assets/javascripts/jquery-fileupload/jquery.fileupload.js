@@ -446,7 +446,7 @@
             }
             if (!multipart || options.blob || !this._isInstanceOf('File', file)) {
                 options.headers['Content-Disposition'] = 'attachment; filename="' +
-                    encodeURI(file.name) + '"';
+                    encodeURI(that.safeFilename(file.name)) + '"';
             }
             if (!multipart) {
                 options.contentType = file.type || 'application/octet-stream';
@@ -482,7 +482,7 @@
                         });
                     }
                     if (options.blob) {
-                        formData.append(paramName, options.blob, file.name);
+                        formData.append(paramName, options.blob, that.safeFilename(file.name));
                     } else {
                         $.each(options.files, function (index, file) {
                             // This check allows the tests to run with
@@ -493,7 +493,7 @@
                                     ($.type(options.paramName) === 'array' &&
                                         options.paramName[index]) || paramName,
                                     file,
-                                    file.uploadName || file.name
+                                    that.safeFilename(file.uploadName || file.name)
                                 );
                             }
                         });
@@ -503,6 +503,11 @@
             }
             // Blob reference is not needed anymore, free memory:
             options.blob = null;
+        },
+
+        _safeFilename: function(filename) {
+            // Strip all non-word characters
+            return filename.replace(/\W/g, '');
         },
 
         _initIframeSettings: function (options) {
